@@ -12,6 +12,8 @@
   "description": "",
   "dependencies": {
     "@whiskeysockets/baileys": "^6.7.6",
+    "dotenv": "^16.4.5",
+    "mysql2": "^3.11.0",
     "qrcode-terminal": "^0.12.0"
   }
 }

@@ -1,9 +1,14 @@
+require("dotenv").config();
 const {
   makeWASocket,
   useMultiFileAuthState,
 } = require("@whiskeysockets/baileys");
 const pino = require("pino");
 const qrcode = require("qrcode-terminal");
+
+const registeredNumbers = JSON.parse(process.env.REGISTERED_NUMBERS);
+
+const { saveMessage } = require("./controllers/messageController");
 
 async function connectWhatsapp() {
   const auth = await useMultiFileAuthState("session");
@@ -42,12 +47,25 @@ async function connectWhatsapp() {
 
     if (chat.key.fromMe) return;
 
+    if (!registeredNumbers.includes(number)) {
+      console.log(
+        `Nomor ${number} tidak diizinkan. Pesan tidak akan diproses.`
+      );
+      return;
+    }
+
     console.log("Nomor pengguna:", number);
     console.log("Nama pengirim:", sender);
 
+    // Simpan pesan ke database //
+    await saveMessage(number, sender, pesan);
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // Kirim pesan balasan //
     await socket.sendMessage(
       chat.key.remoteJid,
-      { text: "Hello World" },
+      { text: "Pesan telah diterima dan disimpan ke database!" },
       { quoted: chat }
     );
   });
